@@ -2,13 +2,14 @@ import argparse
 import hashlib
 import os
 import sys
+from gooey import Gooey
 
 from mpt import __version__
 from .defaults import *
 from .filemanager import FileManager
 from .staging import stage_files
 
-
+@Gooey
 def main(args=None):
     if args is None:
         args = sys.argv[1:]

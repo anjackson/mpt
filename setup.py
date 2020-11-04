@@ -39,6 +39,8 @@ setup(
         ]
     },
     install_requires=[
+        # Latest release does not support wxPython 4.1.0 which is needed on macOS Catalina, but 1.0.5 will:
+        'Gooey @ git+https://github.com/chriskiehl/Gooey.git@1.0.5-release#egg=Gooey',
         'tqdm==4.32',
     ],
     classifiers=[
