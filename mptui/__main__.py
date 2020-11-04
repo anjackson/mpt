@@ -9,7 +9,8 @@ from mpt.defaults import *
 from mpt.filemanager import FileManager
 from mpt.staging import stage_files
 
-@Gooey()
+@Gooey(required_cols=1,
+       optional_cols=1)
 def main(args=None):
     # Process CLI arguments
     ap = GooeyParser(prog="mptui", description="Minimum Preservation Tool UI: file staging and checksum validation utilities")
@@ -18,43 +19,43 @@ def main(args=None):
     # Args for creating manifests
     create_parser = actionparser.add_parser("create")
     create_parser.add_argument("dir", help="Directory of files to process", widget="DirChooser")
+    create_parser.add_argument("tree", widget="DirChooser",
+                               help="directory in which to create 'checksum tree' mirroring original data structure")
+    create_parser.add_argument("-m", dest="manifest", help="the manifest to create [default: None]", widget="FileSaver")
+    create_parser.add_argument("-r", "--recursive", dest="recursive", action="store_true",
+                               help="recurse into sub-folders [default: false]", default=False)
     create_parser.add_argument("-a", "--algorithm", dest="algorithm",
                                choices=hashlib.algorithms_guaranteed,
                                default=default_algorithm,
                                help="the checksum algorithm to use [default: {0}]".format(default_algorithm))
     create_parser.add_argument("--formats", dest="formats", nargs="+", help="list of file extensions to include (only)")
-    create_parser.add_argument("-m", dest="manifest", help="the manifest to create [default: None]", widget="FileSaver")
-    create_parser.add_argument("-r", "--recursive", dest="recursive", action="store_true",
-                               help="recurse into sub-folders [default: false]")
-    create_parser.add_argument("-t", "--tree", required=True, dest="tree", widget="DirChooser",
-                               help="directory in which to create 'checksum tree' mirroring original data structure")
 
     # Args for validating manifests
     validate_m_parser = actionparser.add_parser("validate_manifest")
-    validate_m_parser.add_argument("dir", help="Directory of files to process")
+    validate_m_parser.add_argument("dir", help="Directory of files to process", widget="DirChooser")
+    validate_m_parser.add_argument("manifest", help="the manifest to validate", widget="FileChooser")
     validate_m_parser.add_argument("-a", "--algorithm", dest="algorithm", choices=hashlib.algorithms_guaranteed,
                                    default=default_algorithm,
                                    help="the checksum algorithm to use [default: {0}]".format(default_algorithm))
-    validate_m_parser.add_argument("-m", required=True, dest="manifest", help="the manifest to validate")
 
     # Args for validating checksum tree
     validate_t_parser = actionparser.add_parser("validate_tree")
-    validate_t_parser.add_argument("dir", help="Directory of files to process")
-    validate_t_parser.add_argument("-r", "--recursive", dest="recursive", action="store_true",
-                                   help="recurse into sub-folders [default: false]")
-    validate_t_parser.add_argument("-t", "--tree", required=True, dest="tree",
+    validate_t_parser.add_argument("dir", help="Directory of files to process", widget="DirChooser")
+    validate_t_parser.add_argument("tree", widget="DirChooser",
                                    help="directory containing checksum files mirroring original data structure")
+    validate_t_parser.add_argument("-r", "--recursive", dest="recursive", action="store_true",
+                                   help="recurse into sub-folders [default: false]", default=False)
 
     # Args for comparing checksum trees
     compare_t_parser = actionparser.add_parser("compare_trees")
-    compare_t_parser.add_argument("dir", help="root directory of master checksum tree")
-    compare_t_parser.add_argument("-t", "--trees", required=True, dest="other_paths", nargs="+",
+    compare_t_parser.add_argument("dir", help="root directory of master checksum tree", widget="DirChooser")
+    compare_t_parser.add_argument("other_trees", nargs="+", widget="MultiDirChooser",
                                   help="list of other 'checksum tree' root directories to compare to master")
 
     # Args for comparing manifests
     compare_m_parser = actionparser.add_parser("compare_manifests")
-    compare_m_parser.add_argument("manifest", help="master manifest file to check")
-    compare_m_parser.add_argument("-m", "--other_manifests", required=True, dest="other_paths", nargs="+",
+    compare_m_parser.add_argument("manifest", help="master manifest file to check", widget="FileChooser")
+    compare_m_parser.add_argument("other_manifests", nargs="+", widget="MultiFileChooser",
                                   help="list of other manifests to compare to master")
 
     # Args for staging files
@@ -68,11 +69,11 @@ def main(args=None):
                     " in each destination root, and checksums created in a corresponding 'checksums' directory.")
 
     stage_parser = actionparser.add_parser("stage", description=stage_description, epilog=stage_epilog)
-    stage_parser.add_argument("dir", help="Directory of files to process")
+    stage_parser.add_argument("dir", help="Directory of files to process", widget="DirChooser")
     stage_parser.add_argument("-a", "--algorithm", dest="algorithm",
                               choices=hashlib.algorithms_guaranteed, default=default_algorithm,
                               help="the checksum algorithm to use [default: {0}]".format(default_algorithm))
-    stage_parser.add_argument("-t", "--trees", dest="trees", nargs="+", default=[],
+    stage_parser.add_argument("-t", "--trees", nargs="+", default=[], widget="MultiDirChooser",
                               help="list of directories in which to create 'checksum tree' mirroring original data "
                                    "structure. Should match the number of destination directories in number, or be "
                                    "omitted")
@@ -86,7 +87,7 @@ def main(args=None):
                                    "[default: {0}]".format(max_failures))
     stage_parser.add_argument("--keep-staging-folders", dest="keep_empty_folders", action="store_true",
                               help="keep empty folders in staging directory after completion")
-    stage_parser.add_argument("-d", "--destinations", required=True, dest="targets", nargs="+", metavar="DESTINATIONS",
+    stage_parser.add_argument("targets", nargs="+", metavar="DESTINATIONS", widget="MultiDirChooser",
                               help="list of destination directories into which the files should be staged")
 
     # Common args
@@ -133,14 +134,15 @@ def main(args=None):
             fm.validate_tree()
         elif args.actions == "compare_trees":
             fm = FileManager(primary_path=args.dir, cs_dir=args.dir, num_procs=args.processes, count_files=args.count_files,
-                             email=args.email, output_dir=args.output, other_paths=args.other_paths, recursive=True,
+                             email=args.email, output_dir=args.output, other_paths=args.other_trees, recursive=True,
                              absolute_path=args.abspath, cache_size=args.cache_size)
             fm.compare_trees()
         elif args.actions == "compare_manifests":
             fm = FileManager(primary_path=args.manifest, num_procs=args.processes, count_files=args.count_files,
-                             email=args.email, output_dir=args.output, other_paths=args.other_paths,
+                             email=args.email, output_dir=args.output, other_paths=args.other_manifests,
                              absolute_path=args.abspath, cache_size=args.cache_size)
             fm.compare_manifests()
+        
     except AttributeError as e:
         print(str(e))
         ap.print_help()
