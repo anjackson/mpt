@@ -2,34 +2,31 @@ import argparse
 import hashlib
 import os
 import sys
+from gooey import Gooey, GooeyParser
 
 from mpt import __version__
-from .defaults import *
-from .filemanager import FileManager
-from .staging import stage_files
+from mpt.defaults import *
+from mpt.filemanager import FileManager
+from mpt.staging import stage_files
 
+@Gooey()
 def main(args=None):
-    if args is None:
-        args = sys.argv[1:]
-
     # Process CLI arguments
-    ap = argparse.ArgumentParser(prog="mpt",
-                                 description="Minimum Preservation Tool: file staging and checksum validation "
-                                             "utilities")
+    ap = GooeyParser(prog="mptui", description="Minimum Preservation Tool UI: file staging and checksum validation utilities")
 
-    actionparser = ap.add_subparsers(title='Actions', dest='actions')
+    actionparser = ap.add_subparsers(dest='actions')
     # Args for creating manifests
     create_parser = actionparser.add_parser("create")
-    create_parser.add_argument("dir", help="Directory of files to process")
+    create_parser.add_argument("dir", help="Directory of files to process", widget="DirChooser")
     create_parser.add_argument("-a", "--algorithm", dest="algorithm",
                                choices=hashlib.algorithms_guaranteed,
                                default=default_algorithm,
                                help="the checksum algorithm to use [default: {0}]".format(default_algorithm))
     create_parser.add_argument("--formats", dest="formats", nargs="+", help="list of file extensions to include (only)")
-    create_parser.add_argument("-m", dest="manifest", help="the manifest to create [default: None]")
+    create_parser.add_argument("-m", dest="manifest", help="the manifest to create [default: None]", widget="FileSaver")
     create_parser.add_argument("-r", "--recursive", dest="recursive", action="store_true",
                                help="recurse into sub-folders [default: false]")
-    create_parser.add_argument("-t", "--tree", required=True, dest="tree",
+    create_parser.add_argument("-t", "--tree", required=True, dest="tree", widget="DirChooser",
                                help="directory in which to create 'checksum tree' mirroring original data structure")
 
     # Args for validating manifests
