@@ -3,6 +3,7 @@ import hashlib
 import os
 import sys
 from gooey import Gooey, GooeyParser
+from multiprocessing import freeze_support
 
 from mpt import __version__
 from mpt.defaults import *
@@ -10,7 +11,8 @@ from mpt.filemanager import FileManager
 from mpt.staging import stage_files
 
 @Gooey(required_cols=1,
-       optional_cols=1)
+       optional_cols=1,
+       default_size=(800,600))
 def main(args=None):
     # Process CLI arguments
     ap = GooeyParser(prog="mptui", description="Minimum Preservation Tool UI: file staging and checksum validation utilities")
@@ -150,4 +152,6 @@ def main(args=None):
 
 
 if __name__ == '__main__':
+    # This is needed for multiprocessing to behave as expected when this app is 'frozen' for deployment:
+    freeze_support()
     main()
