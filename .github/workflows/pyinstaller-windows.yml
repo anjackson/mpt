@@ -21,5 +21,5 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: my-exe
+        name: mptui
         path: dist/windows # or path/to/artifact
