@@ -10,6 +10,10 @@ from mpt.defaults import *
 from mpt.filemanager import FileManager
 from mpt.staging import stage_files
 
+# Prevent output from buffering:
+os.environ['PYTHONUNBUFFERED'] = '1'
+
+# The UI:
 @Gooey(required_cols=1,
        optional_cols=1,
        default_size=(800,600))
