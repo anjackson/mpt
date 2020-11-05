@@ -35,13 +35,15 @@ setup(
     entry_points={
         'console_scripts': [
             'mpt = mpt.__main__:main',
+            'mptui = mptui.__main__:main',
             'mptreport = mptreport.__main__:main'
         ]
     },
     install_requires=[
         # Latest release does not support wxPython 4.1.0 which is needed on macOS Catalina, but 1.0.5 will:
-        'Gooey @ git+https://github.com/chriskiehl/Gooey.git@1.0.5-release#egg=Gooey',
+        'Gooey==1.0.4',
         'tqdm==4.32',
+        'pyinstaller==4.0',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
