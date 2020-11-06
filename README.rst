@@ -460,7 +460,7 @@ Graphical User Interface
 There is an experimental graphical user interface (built using [Gooey](https://github.com/chriskiehl/Gooey)) in the mptui folder. After having run `python setup.py install`, you should be able to run it as `mptui`. If you want to build a standalone executable, you can use:
 
 ```
-pyinstaller mptui.specific
+pyinstaller mptui.spec
 ```
 
 This will build an executable in the `dist` folder. But note that this has only been tested under Gooey 1.0.4 on Windows 10. Currently, Gooey is not compatible with macOS Catalina (because only newer versions of WXPython are supported there) and so that won't work until [1.0.5 is released](https://github.com/chriskiehl/Gooey/issues/586).
