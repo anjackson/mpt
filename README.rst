@@ -457,7 +457,7 @@ and sent via e-mail to the two listed recipients.
 Graphical User Interface
 ========================
 
-There is an experimental graphical user interface (built using `Gooey <https://github.com/chriskiehl/Gooey>`_ in the mptui folder. After having run `python setup.py install`, you should be able to run it as `mptui`. If you want to build a standalone executable, you can use:
+There is an experimental graphical user interface built using `Gooey <https://github.com/chriskiehl/Gooey>`_ in the mptui folder. After having run `python setup.py install`, you should be able to run it as `mptui`. If you want to build a standalone executable, you can use:
 
 ::
 
